@@ -22,7 +22,12 @@ struct ContentView: View {
                 .padding()
             Button("test async ") {
                 async {
-                    testState = await testMe(name: textFiledName, strToReplace: helloWorldString, pattern: pattern)
+//                    testState = await testMe(name: textFiledName, strToReplace: helloWorldString, pattern: pattern)
+                    do {
+                        testState = try await testMeWithError(name: textFiledName, strToReplace: helloWorldString, pattern: pattern)
+                    } catch {
+                        testState = "ERROR_ERROR"
+                    }
                 }
             }
             .padding()
@@ -44,6 +49,28 @@ struct ContentView: View {
             }
         })
     }
+
+    enum MyError: Error {
+        case JustError
+    }
+
+
+    func testMeWithError(name: String, strToReplace: String, pattern: String) async throws -> String {
+        return try await withCheckedThrowingContinuation({ continuation in
+            DispatchQueue.global(qos: .background).async {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 3.0) {
+                    let i = Int.random(in: 0...50)
+                    if i % 2 == 0 {
+                        let result = strToReplace.replacingOccurrences(of: pattern, with: name)
+                        continuation.resume(returning: result)
+                    } else {
+                        continuation.resume(throwing: MyError.JustError)
+                    }
+                }
+            }
+        })
+    }
+
 
 }
 
