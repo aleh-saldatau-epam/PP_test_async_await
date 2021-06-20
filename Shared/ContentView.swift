@@ -20,9 +20,14 @@ struct ContentView: View {
             TextField("Enter name:", text: $textFiledName)
                 .multilineTextAlignment(.center)
                 .padding()
-            Button("test async ") {
+            Button("test async success ONLY") {
                 async {
-//                    testState = await testMe(name: textFiledName, strToReplace: helloWorldString, pattern: pattern)
+                    testState = await testMe(name: textFiledName, strToReplace: helloWorldString, pattern: pattern)
+                }
+            }
+            .padding()
+            Button("test async success with throw") {
+                async {
                     do {
                         testState = try await testMeWithError(name: textFiledName, strToReplace: helloWorldString, pattern: pattern)
                     } catch {
